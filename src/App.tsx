@@ -53,6 +53,7 @@ const formatCLP = (value: number) => {
 
 function App() {
   const [people, setPeople] = useState(5);
+  const [billing, setBilling] = useState<'Mensual' | 'Semestral' | 'Anual'>('Mensual');
 
   const results = useMemo(() => {
     const conversations = Math.max(1, people * 20);
@@ -71,15 +72,30 @@ function App() {
       documentPages * documentPrice +
       contracts * contractPrice;
 
+    const discountRate = billing === 'Semestral' ? 0.1 : billing === 'Anual' ? 0.2 : 0;
+    const discountedTotal = Math.round(total * (1 - discountRate));
+
+    const plan =
+      total <= 500000
+        ? 'Basic'
+        : total <= 3000000
+        ? 'Pro'
+        : total <= 10000000
+        ? 'Max'
+        : 'Enterprise';
+
     return {
       conversations,
       advanced,
       documentPages,
       contracts,
       total,
-      costPerPerson: Math.round(total / people)
+      discountedTotal,
+      discountRate,
+      plan,
+      costPerPerson: Math.round(discountedTotal / people)
     };
-  }, [people]);
+  }, [people, billing]);
 
   return (
     <div className="app-shell">
@@ -101,8 +117,12 @@ function App() {
               <span>Costo por persona</span>
             </div>
             <div>
-              <strong>{formatCLP(results.total)}</strong>
-              <span>Costo total del plan</span>
+              <strong>{formatCLP(results.discountedTotal)}</strong>
+              <span>Total del plan</span>
+            </div>
+            <div>
+              <strong>{results.plan}</strong>
+              <span>Plan estimado</span>
             </div>
           </div>
         </div>
@@ -129,8 +149,18 @@ function App() {
         <section className="controls-card landing-card">
           <div className="field-group">
             <label htmlFor="people">Personas a contratar</label>
+            <div className="person-input-row">
+              <input
+                id="people"
+                type="number"
+                min="1"
+                max="10000"
+                value={people}
+                onChange={(event: ChangeEvent<HTMLInputElement>) => setPeople(Math.max(1, Math.min(10000, Number(event.target.value))))}
+              />
+              <span className="person-input-label">personas</span>
+            </div>
             <input
-              id="people"
               type="range"
               min="1"
               max="10000"
@@ -138,7 +168,22 @@ function App() {
               value={people}
               onChange={(event: ChangeEvent<HTMLInputElement>) => setPeople(Number(event.target.value))}
             />
-            <div className="range-value">{people.toLocaleString('es-CL')} personas</div>
+          </div>
+
+          <div className="billing-card">
+            <span>Facturación</span>
+            <div className="billing-options">
+              {(['Mensual', 'Semestral', 'Anual'] as const).map((option) => (
+                <button
+                  key={option}
+                  type="button"
+                  className={billing === option ? 'billing-button active' : 'billing-button'}
+                  onClick={() => setBilling(option)}
+                >
+                  {option}
+                </button>
+              ))}
+            </div>
           </div>
 
           <p className="result-note">
@@ -152,6 +197,29 @@ function App() {
             <strong>{formatCLP(results.costPerPerson)}</strong>
           </div>
           <p className="result-note">Esta cifra refleja el costo dividido entre las personas contratadas, sin desglose de operaciones.</p>
+
+          {results.discountRate > 0 ? (
+            <div className="discount-summary">
+              <div>
+                <span>Precio base</span>
+                <strong>{formatCLP(results.total)}</strong>
+              </div>
+              <div>
+                <span>Descuento {Math.round(results.discountRate * 100)}%</span>
+                <strong>{formatCLP(results.total - results.discountedTotal)}</strong>
+              </div>
+              <div>
+                <span>Total con descuento</span>
+                <strong>{formatCLP(results.discountedTotal)}</strong>
+              </div>
+            </div>
+          ) : (
+            <div className="discount-summary">
+              <span>Sin descuento</span>
+              <strong>{formatCLP(results.total)}</strong>
+            </div>
+          )}
+
           <div className="summary-metrics landing-metrics">
             <div>
               <span>Conversaciones</span>
