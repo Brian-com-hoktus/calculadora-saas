@@ -72,8 +72,12 @@ function App() {
       contracts * contractPrice;
 
     return {
-      costPerPerson: Math.round(total / people),
-      people
+      conversations,
+      advanced,
+      documentPages,
+      contracts,
+      total,
+      costPerPerson: Math.round(total / people)
     };
   }, [people]);
 
@@ -95,6 +99,10 @@ function App() {
             <div>
               <strong>{formatCLP(results.costPerPerson)}</strong>
               <span>Costo por persona</span>
+            </div>
+            <div>
+              <strong>{formatCLP(results.total)}</strong>
+              <span>Costo total del plan</span>
             </div>
           </div>
         </div>
@@ -125,7 +133,7 @@ function App() {
               id="people"
               type="range"
               min="1"
-              max="200"
+              max="10000"
               step="1"
               value={people}
               onChange={(event: ChangeEvent<HTMLInputElement>) => setPeople(Number(event.target.value))}
@@ -134,7 +142,7 @@ function App() {
           </div>
 
           <p className="result-note">
-            Calculamos el costo por persona según la nueva escala de tasas y la lógica histórica de 5% reclutamiento y 40% avance.
+            Calculamos el costo por persona y el costo total del plan según la nueva escala y las tasas históricas.
           </p>
         </section>
 
@@ -144,6 +152,24 @@ function App() {
             <strong>{formatCLP(results.costPerPerson)}</strong>
           </div>
           <p className="result-note">Esta cifra refleja el costo dividido entre las personas contratadas, sin desglose de operaciones.</p>
+          <div className="summary-metrics landing-metrics">
+            <div>
+              <span>Conversaciones</span>
+              <strong>{results.conversations.toLocaleString('es-CL')}</strong>
+            </div>
+            <div>
+              <span>Revisiones de antecedentes</span>
+              <strong>{results.advanced.toLocaleString('es-CL')}</strong>
+            </div>
+            <div>
+              <span>Revi AI de documentos</span>
+              <strong>{results.documentPages.toLocaleString('es-CL')}</strong>
+            </div>
+            <div>
+              <span>Contratos enviados</span>
+              <strong>{results.contracts.toLocaleString('es-CL')}</strong>
+            </div>
+          </div>
         </section>
       </main>
     </div>
