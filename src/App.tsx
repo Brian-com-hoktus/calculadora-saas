@@ -1,7 +1,5 @@
 import { ChangeEvent, useMemo, useState } from 'react';
 
-type Plan = 'Basic' | 'Pro' | 'Max' | 'Enterprise';
-
 type RateTier = {
   min: number;
   max: number;
@@ -40,33 +38,6 @@ const contractTiers: RateTier[] = [
   { min: 10001, max: 100000, price: 600 }
 ];
 
-const planData: Record<Plan, { label: string; description: string; baseFee: number; discount: number }> = {
-  Basic: {
-    label: 'Básico',
-    description: 'Ideal para proyectos pequeños y primeros pilotos.',
-    baseFee: 0,
-    discount: 0
-  },
-  Pro: {
-    label: 'Pro',
-    description: 'Perfecto para equipos que exigen más análisis y soporte.',
-    baseFee: 50000,
-    discount: 0.05
-  },
-  Max: {
-    label: 'Max',
-    description: 'Para operaciones de alto volumen con mayor optimización.',
-    baseFee: 120000,
-    discount: 0.1
-  },
-  Enterprise: {
-    label: 'Enterprise',
-    description: 'Plan personalizado con soporte dedicado y acuerdos SLA.',
-    baseFee: 250000,
-    discount: 0.15
-  }
-};
-
 const getRateForQuantity = (tiers: RateTier[], quantity: number) => {
   const tier = tiers.find((tierItem) => quantity >= tierItem.min && quantity <= tierItem.max);
   return tier ? tier.price : tiers[tiers.length - 1].price;
@@ -81,218 +52,125 @@ const formatCLP = (value: number) => {
 };
 
 function App() {
-  const [plan, setPlan] = useState<Plan>('Pro');
-  const [conversations, setConversations] = useState(2000);
-  const planOptions = Object.keys(planData) as Plan[];
+  const [people, setPeople] = useState(5);
 
   const results = useMemo(() => {
-    const recruited = Math.round(conversations * 0.05);
+    const conversations = Math.max(1, people * 20);
     const advanced = Math.round(conversations * 0.4);
     const documentPages = advanced * 12;
-    const contracts = recruited;
+    const contracts = people;
 
     const conversationPrice = getRateForQuantity(conversationTiers, conversations);
     const backgroundPrice = getRateForQuantity(backgroundTiers, advanced);
     const documentPrice = getRateForQuantity(documentTiers, documentPages);
     const contractPrice = getRateForQuantity(contractTiers, contracts);
 
-    const conversationCost = conversations * conversationPrice;
-    const backgroundCost = advanced * backgroundPrice;
-    const documentCost = documentPages * documentPrice;
-    const contractCost = contracts * contractPrice;
-
-    const subtotal = conversationCost + backgroundCost + documentCost + contractCost;
-    const planInfo = planData[plan];
-    const discount = subtotal * planInfo.discount;
-    const total = planInfo.baseFee + subtotal - discount;
+    const total =
+      conversations * conversationPrice +
+      advanced * backgroundPrice +
+      documentPages * documentPrice +
+      contracts * contractPrice;
 
     return {
-      recruited,
+      conversations,
       advanced,
       documentPages,
       contracts,
-      conversationPrice,
-      backgroundPrice,
-      documentPrice,
-      contractPrice,
-      conversationCost,
-      backgroundCost,
-      documentCost,
-      contractCost,
-      subtotal,
-      discount,
-      total,
-      baseFee: planInfo.baseFee
+      total
     };
-  }, [conversations, plan]);
+  }, [people]);
+
+  const metrics = [
+    { label: 'Conversaciones', value: results.conversations },
+    { label: 'Revisiones', value: results.advanced },
+    { label: 'Documentos', value: results.documentPages },
+    { label: 'Contratos', value: results.contracts }
+  ];
 
   return (
     <div className="app-shell">
-      <header className="hero">
-        <div>
-          <span className="eyebrow">Calculadora SaaS</span>
-          <h1>Precio automático según volumen y uso</h1>
+      <header className="hero hero-landing">
+        <div className="hero-copy">
+          <span className="eyebrow">Hoktus</span>
+          <h1>Tu operación de reclutamiento en tiempo real</h1>
           <p>
-            Ajusta el número de conversaciones y descubre el costo estimado de cada componente: conversaciones,
-            revisiones de antecedentes, documentos y contratos.
+            Ajusta cuántas personas quieres contratar y obtén una proyección instantánea del volumen que requiere tu proceso.
           </p>
+
+          <div className="hero-meta">
+            <div>
+              <strong>{people.toLocaleString('es-CL')}</strong>
+              <span>Personas</span>
+            </div>
+            <div>
+              <strong>{formatCLP(results.total)}</strong>
+              <span>Estimación</span>
+            </div>
+          </div>
         </div>
-        <div className="plan-card">
-          <strong>{planData[plan].label}</strong>
-          <p>{planData[plan].description}</p>
-          <p>
-            Tarifa base: <strong>{formatCLP(planData[plan].baseFee)}</strong>
-          </p>
-          <p>Descuento: {Math.round(planData[plan].discount * 100)}%</p>
+
+        <div className="hero-visual">
+          <div className="visual-card">
+            <div className="visual-dot" />
+            <div className="visual-graph">
+              <span />
+              <span />
+              <span />
+              <span />
+            </div>
+            <div className="visual-footer">
+              <div />
+              <div />
+              <div />
+            </div>
+          </div>
         </div>
       </header>
 
-      <main className="content-grid">
-        <section className="controls-card">
+      <main className="content-grid landing-grid">
+        <section className="controls-card landing-card">
           <div className="field-group">
-            <label htmlFor="plan">Selecciona un plan</label>
-            <select
-              id="plan"
-              value={plan}
-              onChange={(event: ChangeEvent<HTMLSelectElement>) => setPlan(event.target.value as Plan)}
-            >
-              {planOptions.map((option) => (
-                <option key={option} value={option}>
-                  {planData[option].label}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="field-group">
-            <label htmlFor="conversations">Conversaciones mensuales</label>
+            <label htmlFor="people">Personas a contratar</label>
             <input
-              id="conversations"
+              id="people"
               type="range"
-              min="100"
-              max="200000"
-              step="100"
-              value={conversations}
-              onChange={(event: ChangeEvent<HTMLInputElement>) => setConversations(Number(event.target.value))}
+              min="1"
+              max="200"
+              step="1"
+              value={people}
+              onChange={(event: ChangeEvent<HTMLInputElement>) => setPeople(Number(event.target.value))}
             />
-            <div className="range-value">{conversations.toLocaleString('es-CL')} conversaciones</div>
+            <div className="range-value">{people.toLocaleString('es-CL')} personas</div>
           </div>
 
-          <div className="summary-metrics">
-            <div>
-              <span>Reclutamiento (5%)</span>
-              <strong>{results.recruited.toLocaleString('es-CL')} personas</strong>
-            </div>
-            <div>
-              <span>Avances a revisión (40%)</span>
-              <strong>{results.advanced.toLocaleString('es-CL')} personas</strong>
-            </div>
-            <div>
-              <span>Páginas de documentos</span>
-              <strong>{results.documentPages.toLocaleString('es-CL')} páginas</strong>
-            </div>
-            <div>
-              <span>Contratos</span>
-              <strong>{results.contracts.toLocaleString('es-CL')} envíos</strong>
-            </div>
+          <div className="summary-metrics landing-metrics">
+            {metrics.map((metric) => (
+              <div key={metric.label}>
+                <span>{metric.label}</span>
+                <strong>{metric.value.toLocaleString('es-CL')}</strong>
+              </div>
+            ))}
           </div>
         </section>
 
-        <section className="result-card">
-          <h2>Detalle de costos</h2>
-          <div className="cost-row">
-            <div>
-              <span>Conversaciones</span>
-              <small>{conversations.toLocaleString('es-CL')} × {formatCLP(results.conversationPrice)}</small>
-            </div>
-            <strong>{formatCLP(results.conversationCost)}</strong>
-          </div>
-          <div className="cost-row">
-            <div>
-              <span>Revisión de antecedentes</span>
-              <small>{results.advanced.toLocaleString('es-CL')} × {formatCLP(results.backgroundPrice)}</small>
-            </div>
-            <strong>{formatCLP(results.backgroundCost)}</strong>
-          </div>
-          <div className="cost-row">
-            <div>
-              <span>Revi AI (documentos)</span>
-              <small>{results.documentPages.toLocaleString('es-CL')} × {formatCLP(results.documentPrice)}</small>
-            </div>
-            <strong>{formatCLP(results.documentCost)}</strong>
-          </div>
-          <div className="cost-row">
-            <div>
-              <span>Contratos con firma</span>
-              <small>{results.contracts.toLocaleString('es-CL')} × {formatCLP(results.contractPrice)}</small>
-            </div>
-            <strong>{formatCLP(results.contractCost)}</strong>
-          </div>
-
-          <div className="divider" />
-
-          <div className="cost-row small">
-            <span>Subtotal</span>
-            <strong>{formatCLP(results.subtotal)}</strong>
-          </div>
-          <div className="cost-row small">
-            <span>Tarifa base del plan</span>
-            <strong>{formatCLP(results.baseFee)}</strong>
-          </div>
-          <div className="cost-row small">
-            <span>Descuento de plan</span>
-            <strong>-{formatCLP(results.discount)}</strong>
-          </div>
-
-          <div className="total-row">
-            <span>Total estimado</span>
+        <section className="result-card landing-card total-card">
+          <div className="result-header">
+            <span>Estimación de operación</span>
             <strong>{formatCLP(results.total)}</strong>
+          </div>
+          <p className="result-note">Proyección sin detalle de costos, directo desde la lógica de volumen.</p>
+          <div className="pill-grid">
+            <div>
+              <strong>{results.conversations.toLocaleString('es-CL')}</strong>
+              <span>Conversaciones</span>
+            </div>
+            <div>
+              <strong>{results.documentPages.toLocaleString('es-CL')}</strong>
+              <span>Páginas de documentos</span>
+            </div>
           </div>
         </section>
       </main>
-
-      <section className="info-section">
-        <h2>Cómo funciona</h2>
-        <p>
-          La calculadora usa tus conversaciones mensuales para estimar automáticamente el volumen de reclutamiento,
-          revisiones de antecedentes, páginas de documentos y contratos. Los precios se ajustan en tramos para cada
-          componente, de modo que el costo por unidad baja al aumentar el volumen.
-        </p>
-        <div className="tier-grid">
-          <div>
-            <strong>Conversaciones</strong>
-            <p>1-2.000: $160</p>
-            <p>2.001-10.000: $140</p>
-            <p>10.001-30.000: $90</p>
-            <p>30.001-60.000: $70</p>
-            <p>60.001+: $60</p>
-          </div>
-          <div>
-            <strong>Antecedentes</strong>
-            <p>1-500: $1.500</p>
-            <p>501-1.000: $1.300</p>
-            <p>1.001-5.000: $1.100</p>
-            <p>5.001-10.000: $1.000</p>
-            <p>10.001+: $500</p>
-          </div>
-          <div>
-            <strong>Documentos</strong>
-            <p>1-2.000: $160</p>
-            <p>2.001-10.000: $140</p>
-            <p>10.001-30.000: $120</p>
-            <p>30.001-60.000: $100</p>
-            <p>60.001+: $80</p>
-          </div>
-          <div>
-            <strong>Contratos</strong>
-            <p>1-100: $1.500</p>
-            <p>101-500: $1.300</p>
-            <p>501-2.500: $1.100</p>
-            <p>2.501-10.000: $1.000</p>
-            <p>10.001+: $600</p>
-          </div>
-        </div>
-      </section>
     </div>
   );
 }
