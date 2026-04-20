@@ -7,27 +7,27 @@ type RateTier = {
 };
 
 const conversationTiers: RateTier[] = [
-  { min: 1, max: 2000, price: 160 },
-  { min: 2001, max: 10000, price: 140 },
-  { min: 10001, max: 30000, price: 90 },
-  { min: 30001, max: 60000, price: 70 },
-  { min: 60001, max: 2000000, price: 60 }
+  { min: 1, max: 2000, price: 140 },
+  { min: 2001, max: 10000, price: 120 },
+  { min: 10001, max: 30000, price: 80 },
+  { min: 30001, max: 60000, price: 60 },
+  { min: 60001, max: 2000000, price: 50 }
 ];
 
 const backgroundTiers: RateTier[] = [
-  { min: 1, max: 500, price: 1500 },
-  { min: 501, max: 1000, price: 1300 },
-  { min: 1001, max: 5000, price: 1100 },
-  { min: 5001, max: 10000, price: 1000 },
+  { min: 1, max: 500, price: 1400 },
+  { min: 501, max: 1000, price: 1200 },
+  { min: 1001, max: 5000, price: 1000 },
+  { min: 5001, max: 10000, price: 900 },
   { min: 10001, max: 100000, price: 500 }
 ];
 
 const documentTiers: RateTier[] = [
-  { min: 1, max: 2000, price: 160 },
-  { min: 2001, max: 10000, price: 140 },
-  { min: 10001, max: 30000, price: 120 },
-  { min: 30001, max: 60000, price: 100 },
-  { min: 60001, max: 2000000, price: 80 }
+  { min: 1, max: 2000, price: 120 },
+  { min: 2001, max: 10000, price: 110 },
+  { min: 10001, max: 30000, price: 100 },
+  { min: 30001, max: 60000, price: 80 },
+  { min: 60001, max: 2000000, price: 60 }
 ];
 
 const contractTiers: RateTier[] = [
@@ -72,20 +72,10 @@ function App() {
       contracts * contractPrice;
 
     return {
-      conversations,
-      advanced,
-      documentPages,
-      contracts,
-      total
+      costPerPerson: Math.round(total / people),
+      people
     };
   }, [people]);
-
-  const metrics = [
-    { label: 'Conversaciones', value: results.conversations },
-    { label: 'Revisiones', value: results.advanced },
-    { label: 'Documentos', value: results.documentPages },
-    { label: 'Contratos', value: results.contracts }
-  ];
 
   return (
     <div className="app-shell">
@@ -94,7 +84,7 @@ function App() {
           <span className="eyebrow">Hoktus</span>
           <h1>Tu operación de reclutamiento en tiempo real</h1>
           <p>
-            Ajusta cuántas personas quieres contratar y obtén una proyección instantánea del volumen que requiere tu proceso.
+            Ajusta cuántas personas quieres contratar y obtén el costo por contratado al instante.
           </p>
 
           <div className="hero-meta">
@@ -103,8 +93,8 @@ function App() {
               <span>Personas</span>
             </div>
             <div>
-              <strong>{formatCLP(results.total)}</strong>
-              <span>Estimación</span>
+              <strong>{formatCLP(results.costPerPerson)}</strong>
+              <span>Costo por persona</span>
             </div>
           </div>
         </div>
@@ -143,32 +133,17 @@ function App() {
             <div className="range-value">{people.toLocaleString('es-CL')} personas</div>
           </div>
 
-          <div className="summary-metrics landing-metrics">
-            {metrics.map((metric) => (
-              <div key={metric.label}>
-                <span>{metric.label}</span>
-                <strong>{metric.value.toLocaleString('es-CL')}</strong>
-              </div>
-            ))}
-          </div>
+          <p className="result-note">
+            Calculamos el costo por persona según la nueva escala de tasas y la lógica histórica de 5% reclutamiento y 40% avance.
+          </p>
         </section>
 
         <section className="result-card landing-card total-card">
           <div className="result-header">
-            <span>Estimación de operación</span>
-            <strong>{formatCLP(results.total)}</strong>
+            <span>Tarifa por contratado</span>
+            <strong>{formatCLP(results.costPerPerson)}</strong>
           </div>
-          <p className="result-note">Proyección sin detalle de costos, directo desde la lógica de volumen.</p>
-          <div className="pill-grid">
-            <div>
-              <strong>{results.conversations.toLocaleString('es-CL')}</strong>
-              <span>Conversaciones</span>
-            </div>
-            <div>
-              <strong>{results.documentPages.toLocaleString('es-CL')}</strong>
-              <span>Páginas de documentos</span>
-            </div>
-          </div>
+          <p className="result-note">Esta cifra refleja el costo dividido entre las personas contratadas, sin desglose de operaciones.</p>
         </section>
       </main>
     </div>
