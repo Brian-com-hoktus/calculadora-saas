@@ -7,11 +7,11 @@ type RateTier = {
 };
 
 const conversationTiers: RateTier[] = [
-  { min: 1, max: 2000, price: 140 },
-  { min: 2001, max: 10000, price: 120 },
-  { min: 10001, max: 30000, price: 80 },
-  { min: 30001, max: 60000, price: 60 },
-  { min: 60001, max: 2000000, price: 50 }
+  { min: 1, max: 2000, price: 260 },
+  { min: 2001, max: 10000, price: 240 },
+  { min: 10001, max: 30000, price: 210 },
+  { min: 30001, max: 60000, price: 180 },
+  { min: 60001, max: 2000000, price: 120 }
 ];
 
 const backgroundTiers: RateTier[] = [
@@ -23,11 +23,11 @@ const backgroundTiers: RateTier[] = [
 ];
 
 const documentTiers: RateTier[] = [
-  { min: 1, max: 2000, price: 120 },
-  { min: 2001, max: 10000, price: 110 },
-  { min: 10001, max: 30000, price: 100 },
-  { min: 30001, max: 60000, price: 80 },
-  { min: 60001, max: 2000000, price: 60 }
+  { min: 1, max: 2000, price: 200 },
+  { min: 2001, max: 10000, price: 180 },
+  { min: 10001, max: 30000, price: 150 },
+  { min: 30001, max: 60000, price: 140 },
+  { min: 60001, max: 2000000, price: 120 }
 ];
 
 const contractTiers: RateTier[] = [
