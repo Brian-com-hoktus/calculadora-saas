@@ -76,11 +76,11 @@ function App() {
     const discountedTotal = Math.round(total * (1 - discountRate));
 
     const plan =
-      total <= 500000
+      discountedTotal <= 500000
         ? 'Basic'
-        : total <= 3000000
+        : discountedTotal <= 3000000
         ? 'Pro'
-        : total <= 10000000
+        : discountedTotal <= 10000000
         ? 'Max'
         : 'Enterprise';
 
